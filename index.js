@@ -25,26 +25,21 @@ function enterDatabase() {
 
 function viewDepartments() {
   connection.query((`SELECT * FROM department`), (err, res) => {
-    err ? console.log(err) : console.table(res);
+    err ? console.log(err) : console.log('View Departments'), console.table(res);
   });
 }
 
 function viewRoles() {
   connection.query((`SELECT * FROM role`), (err, res) => {
-    err ? console.log(err) : console.table(res);
+    err ? console.log(err) :  console.log('View Roles'), console.table(res);
   });
 }
-// SELECT first_name, last_name, role.title, role.salary  FROM employee JOIN role ON role_id = role.id ;  
 
-// function viewAllEmps(){
-//   connection.query((`SELECT employee.first, employee.last_name FROM employee, employee.manager_id AS `), (err, res) => {
-//     err ? console.log(err) : console.log(res);
-//   });
-// }
 
+// SELECT first_name AS 'First Name', last_name AS 'Last Name', role.title AS 'Job Title', role.salary AS 'Salary', department.name AS 'Department', manager_id FROM employee JOIN role ON role_id = role.id JOIN department ON department_id = department.id;
 function viewAllEmps() {
-  connection.query((`SELECT first_name, last_name, role.title, role.salary  FROM employee JOIN role ON role_id = role.id;`), (err, res) => {
-    err ? console.log(err) : console.table(res);
+  connection.query((`SELECT employee.id, employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Job Title', role.salary AS 'Salary', department.name AS 'Department', CONCAT(manager.first_name, ' ', manager.last_name) AS Manager FROM employee JOIN role ON role_id = role.id JOIN department ON department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id ;`), (err, res) => {
+    err ? console.log(err) :  console.log('View All Employees'), console.table(res);
   });
 }
 

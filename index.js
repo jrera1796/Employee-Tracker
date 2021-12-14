@@ -17,7 +17,7 @@ const choices = {
   type: 'list',
   name: 'checkA',
   message: 'What would you like to do?',
-  choices: ['View All Employees', 'View Roles', 'View Departments', 'Add Department', 'Add Role', 'Exit']
+  choices: ['View All Employees', 'View Roles', 'View Departments', 'Add Department', 'Add Role', 'Add Employee', 'Exit']
 }
 
 function startIQ() {
@@ -28,12 +28,15 @@ function startIQ() {
         case 'View All Employees':
           console.log('Viewing All Employees');
           viewAllEmps();
+          startIQ();
           break;
         case 'View Roles':
           viewRoles();
+          startIQ();
           break;
         case 'View Departments':
           viewDepartments();
+          startIQ();
           break;
         case 'Add Department':
           inquirer.prompt({
@@ -71,7 +74,7 @@ function startIQ() {
           {
             type: 'input',
             name: 'role_dept',
-            message: `What department does this role fall under? Please use Department ID`
+            message: `What department does this role falls under? Please use Department ID`
           }])
             .then(roleData => {
               const roleParams = [roleData.new_role, roleData.role_salary, roleData.role_dept]
@@ -104,6 +107,7 @@ function enterDatabase() {
 
 function exit() {
   connection.end;
+  inquirer.prompt({type: 'message', name: 'none', message: 'Press Enter to Finish'}).then(console.log('End'))
 
 }
 

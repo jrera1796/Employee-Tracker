@@ -17,103 +17,113 @@ const choices = {
   type: 'list',
   name: 'checkA',
   message: 'What would you like to do?',
-  choices: ['View All Employees', 'View Roles', 'View Departments', 'Add Department', 'Add Role', 'Exit']
+  choices: ['View All Employees', 'View Roles', 'View Departments', 'Add Department', 'Add Role', 'Add Employee', 'Exit']
 }
+function choiceChecker(answers) {
+
+  switch (answers.checkA) {
+    case 'View All Employees':
+      console.log('Viewing All Employees');
+      viewAllEmps();
+      break;
+
+    case 'View Roles':
+      viewRoles();
+      break;
+
+    case 'View Departments':
+      viewDepartments();
+      break;
+
+    case 'Add Department':
+      inquirer.prompt({
+        type: 'input',
+        name: 'new_dept',
+        message: 'What is the name of the new department?'
+      }).then(deptData => {
+        const str = deptData.new_dept
+        addDepartment(str);
+      })
+      break;
+    case 'Add Role':
+      connection.promise().query('SELECT * FROM department').then(([rows]) => {
+        const departments = rows.map(({ id, name }) => ({
+          name: name,
+          value: id
+        }))
+        inquirer.prompt([{
+          type: 'input',
+          name: 'new_role',
+          message: 'What is the name of the role?'
+        },
+        {
+          type: 'input',
+          name: 'role_salary',
+          message: `What is the salary?`
+        },
+        {
+          type: 'list',
+          name: 'role_dept',
+          message: 'What department does this role falls under?',
+          choices: departments
+        }])
+          .then(roleData => {
+            const roleParams = [roleData.new_role, roleData.role_salary, roleData.role_dept]
+            addRole(roleParams);
+
+          })
+      });
+      break;
+    case 'Exit':
+      exit();
+      break;
+  }
+};
+
+
 
 function startIQ() {
   inquirer
     .prompt(choices)
     .then(answers => {
-      switch (answers.checkA) {
-        case 'View All Employees':
-          console.log('Viewing All Employees');
-          viewAllEmps();
-          break;
-        case 'View Roles':
-          viewRoles();
-          break;
-        case 'View Departments':
-          viewDepartments();
-          break;
-        case 'Add Department':
-          inquirer.prompt({
-            type: 'input',
-            name: 'new_dept',
-            message: 'What is the name of the new department?'
-          }).then(deptData => {
-            const str = deptData.new_dept
-            addDepartment(str);
-          })
-          break;
-        case 'Add Role':
-          inquirer.prompt([{
-            type: 'input',
-            name: 'new_role',
-            message: 'What is the name of the role?'
-          },
-          {
-            type: 'input',
-            name: 'role_salary',
-            message: `What is the salary?`
-          },
-          {
-            type: 'confirm',
-            name: 'deptCheck',
-            message: `Would you like to view departments available?`
-          },
-          {
-            type: 'none',
-            name: 'Departments',
-            message: viewDepartments,
-            when: (answers) => answers.deptCheck == true,
-
-          },
-          {
-            type: 'input',
-            name: 'role_dept',
-            message: `What department does this role fall under? Please use Department ID`
-          }])
-            .then(roleData => {
-              const roleParams = [roleData.new_role, roleData.role_salary, roleData.role_dept]
-              addRole(roleParams);
-              return startIQ();
-            })
-      
-          break;
-        case 'Exit':
-          exit();
-          break;
-      }
-    }).then(console.log('Done'))
-
-
-
-
+      choiceChecker(answers)
+    });
 };
-
-
 
 function enterDatabase() {
   connection.query((`USE employees;`), (err) => {
     if (err) {
       console.log(err);
     }
-    // console.log('Connected to Data')
   });
 }
 
 function exit() {
   connection.end;
+  inquirer.prompt({ type: 'message', name: 'none', message: 'Press Enter to Finish' }).then(console.log('End'))
 
 }
 
 
-//View Department
+// View Department
+// function viewDepartments() {
+//   connection.query((`SELECT * FROM department`), (err, res) => {
+//     err ? console.log(err) : console.table(res);
+//   });
+// }
+
+//Rewrite Dept to return departments at the beginning of startIQ function
 function viewDepartments() {
-  connection.query((`SELECT * FROM department`), (err, res) => {
-    err ? console.log(err) : console.table(res), console.table('_________________________');
-  });
+  connection.promise().query('SELECT * FROM department').then(([rows]) => {
+    const departments = rows.map(({ id, name }) => ({
+      name: name,
+      value: id
+
+    }));
+
+  })
 }
+
 //Add Department
 function addDepartment(str) {
   connection.query((`INSERT INTO department(name) VALUES('${str}')`), (err, res) => {
@@ -126,11 +136,30 @@ function viewRoles() {
     err ? console.log(err) : console.table(res), console.table('_________________________');
   });
 }
+
 //Add Role
 function addRole(roleParams) {
   connection.query((`INSERT INTO role(title, salary, department_id) VALUES(?,?,?)`), (roleParams), (err, res) => {
-    err ? console.log(err) : console.table(res), console.table('_________________________');
-  });
+    if (err) {
+      throw err;
+    }
+    else {
+      connection.query((`SELECT * FROM department WHERE ID = ${roleParams[2]}`), (err, res) => {
+        if (err) {
+          throw err
+        }
+        const newRole = [{
+          'Role': roleParams[0],
+          'Salary': roleParams[1],
+          'Department': res[0].name
+        }]
+
+        console.log('\n', 'New Role Added', '\n');
+        console.table(newRole);
+        startIQ();
+      })
+    }
+  })
 }
 
 

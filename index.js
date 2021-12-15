@@ -9,7 +9,6 @@ const connection = mysql.createConnection(
     password: 'password',
     database: 'employees'
   },
-
   console.log(`Connected to employees database.`)
 );
 
@@ -84,6 +83,7 @@ function choiceChecker(answers) {
           name: first_name + ' ' + last_name,
           value: id
         }))
+
         inquirer.prompt([{
           type: 'input',
           name: 'firstName',
@@ -97,13 +97,14 @@ function choiceChecker(answers) {
           .then(empData => {
             noSpacefirstName = empData.firstName.replace(/\s+/g, ' ').trim();
             noSpacelastName = empData.lastName.replace(/\s+/g, ' ').trim();
-
             const empParams = [noSpacefirstName, noSpacelastName]
+
             connection.promise().query('SELECT * FROM role').then(([rows]) => {
               const roles = rows.map(({ id, title }) => ({
                 name: title,
                 value: id
               }))
+
               inquirer.prompt({
                 type: 'list',
                 name: 'empRole',
@@ -112,6 +113,7 @@ function choiceChecker(answers) {
               }).then(data => {
                 empParams.push(data.empRole)
                 console.log(empParams)
+
                 inquirer.prompt(
                   {
                     type: 'list',
@@ -120,8 +122,6 @@ function choiceChecker(answers) {
                     choices: employees
                   }).then(data => {
                     empParams.push(data.empManager)
-
-
                     const newEmployee = [{
                       'First Name': empParams[0],
                       'Last Name': empParams[1],
@@ -130,7 +130,6 @@ function choiceChecker(answers) {
                     }]
                     console.log('\n', 'Employee to be Added', '\n');
                     console.table(newEmployee)
-
 
                     inquirer.prompt({
                       type: 'list',
@@ -146,37 +145,20 @@ function choiceChecker(answers) {
                         case "No, I'd Like to start over":
                           startIQ();
                           break;
+
                       }
                     })
-
                   })
               })
             })
           })
       })
       break;
-
     case 'Exit':
       exit();
       break;
   }
 };
-
-function doubleCheck() {
-  inquirer.prompt({
-    type: 'list',
-    name: 'finalCheck',
-    message: 'Does everything look correct?',
-    choices: ["Yes, submit", "No, I'd Like to start over"]
-  }).then(check => {
-    switch (check.finalCheck) {
-      case "Yes, submit new employee":
-        return 'Yes'
-      case "No, I'd Like to start over":
-        return 'No'
-    }
-  })
-}
 
 function startIQ() {
   inquirer
@@ -198,9 +180,8 @@ function enterDatabase() {
 function exit() {
   connection.end;
   console.log('Goodbye!')
-  // This will exit after 5 seconds, with signal 1
+  // This will exit after 1 second, with signal 1
   setTimeout((function () {
-
     return process.exit(1);
   }), 1000);
 }
@@ -274,7 +255,6 @@ function addRole(roleParams) {
           'Salary': roleParams[1],
           'Department': res[0].name
         }]
-
         console.log('\n', 'New Role Added', '\n');
         console.table(newRole);
         startIQ();
@@ -283,8 +263,7 @@ function addRole(roleParams) {
   })
 }
 
-
-// SELECT first_name AS 'First Name', last_name AS 'Last Name', role.title AS 'Job Title', role.salary AS 'Salary', department.name AS 'Department', manager_id FROM employee JOIN role ON role_id = role.id JOIN department ON department_id = department.id;
+//View Employees
 function viewAllEmps() {
   connection.query((`SELECT employee.id AS 'ID', employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Job Title', role.salary AS 'Salary', department.name AS 'Department', CONCAT(manager.first_name, ' ', manager.last_name) AS Manager FROM employee JOIN role ON role_id = role.id JOIN department ON department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id ;`), (err, res) => {
     if (err) {
@@ -297,9 +276,8 @@ function viewAllEmps() {
   });
 }
 
-//Add Role
+//Add Employee
 function addEmployee(empParams) {
-
   connection.query((`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?,?,?,?)`), (empParams), (err, res) => {
     if (err) {
       throw err
@@ -307,9 +285,7 @@ function addEmployee(empParams) {
     else {
       const newEmployeePrint = [{
         'Employee': empParams[0] + ' ' + empParams[1],
-        
       }]
-
       console.log('\n', 'New Employee Added', '\n');
       console.table(newEmployeePrint);
       startIQ();

@@ -16,13 +16,12 @@ const choices = {
   type: 'list',
   name: 'checkA',
   message: 'What would you like to do?',
-  choices: ['View All Employees', 'View Roles', 'View Departments', 'Add Department', 'Add Role', 'Add Employee', 'Exit']
+  choices: ['View All Employees', 'View Roles', 'View Departments', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee', 'Exit']
 }
 function choiceChecker(answers) {
 
   switch (answers.checkA) {
     case 'View All Employees':
-      console.log('Viewing All Employees');
       viewAllEmps();
       break;
 
@@ -152,6 +151,43 @@ function choiceChecker(answers) {
               })
             })
           })
+      })
+      break;
+
+    case 'Update Employee':
+      connection.promise().query('SELECT * FROM employee').then(([rows]) => {
+        const employees = rows.map(({ id, first_name, last_name }) => ({
+          name: first_name + ' ' + last_name,
+          value: id
+        }))
+        inquirer.prompt({
+          type: 'list',
+          name: 'updateWho',
+          message: 'Which employee would you like to update?',
+          choices: employees
+
+        }).then(data => {
+          
+          const updatedEmp = [data.updateWho]
+
+          connection.promise().query('SELECT * FROM role').then(([rows]) => {
+            const roles = rows.map(({ id, title }) => ({
+              name: title,
+              value: id
+            }))
+
+            inquirer.prompt({
+              type: 'list',
+              name: 'empRole',
+              message: `What is the new role?`,
+              choices: roles
+            }).then(data => {
+              updatedEmp.push(data.empRole)
+              
+              updateEmployee(updatedEmp)
+            })
+          })
+        })
       })
       break;
     case 'Exit':
@@ -288,6 +324,23 @@ function addEmployee(empParams) {
       }]
       console.log('\n', 'New Employee Added', '\n');
       console.table(newEmployeePrint);
+      startIQ();
+    }
+  });
+};
+
+//Update Employee
+function updateEmployee(updatedEmp) {
+  updatedEmpRev = updatedEmp.reverse();
+  connection.query((`UPDATE employee SET role_id = ? WHERE id = ?`), (updatedEmpRev), (err, res) => {
+    if (err) {
+      throw err
+    }
+    else {
+      
+      
+      console.log('\n', 'Updated Employee', '\n');
+      
       startIQ();
     }
   });

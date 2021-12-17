@@ -167,7 +167,7 @@ function choiceChecker(answers) {
           choices: employees
 
         }).then(data => {
-          
+
           const updatedEmp = [data.updateWho]
 
           connection.promise().query('SELECT * FROM role').then(([rows]) => {
@@ -183,7 +183,7 @@ function choiceChecker(answers) {
               choices: roles
             }).then(data => {
               updatedEmp.push(data.empRole)
-              
+
               updateEmployee(updatedEmp)
             })
           })
@@ -330,18 +330,39 @@ function addEmployee(empParams) {
 };
 
 //Update Employee
+// updatedEmpRev = updatedEmp.reverse();
+//connection.query((`UPDATE employee SET role_id = ? WHERE id = ?`), (updatedEmpRev)
+
 function updateEmployee(updatedEmp) {
-  updatedEmpRev = updatedEmp.reverse();
-  connection.query((`UPDATE employee SET role_id = ? WHERE id = ?`), (updatedEmpRev), (err, res) => {
+  const employeeU = []
+  connection.query((`SELECT * FROM employee WHERE id = ${updatedEmp[0]}`), (err, res) => {
     if (err) {
-      throw err
-    }
-    else {
-      
-      
-      console.log('\n', 'Updated Employee', '\n');
-      
-      startIQ();
+      throw err;
+    } else {
+      employeeU.push(res[0].first_name, res[0].last_name);
+      connection.query((`SELECT * FROM role WHERE id = ${updatedEmp[1]}`), (err, res) => {
+        if (err) {
+          throw err;
+        }
+        else {
+          employeeU.push(res[0].title)
+          updatedEmpRev = updatedEmp.reverse();
+          connection.query((`UPDATE employee SET role_id = ? WHERE id = ?`), (updatedEmpRev), (err) => {
+            if (err) {
+              throw err;
+            }
+            else {
+              const updatedEmployeePrint = [{
+                'Employee': employeeU[0] + ' ' + employeeU[1],
+                'New Role': employeeU[2]
+              }]
+              console.log('\n', 'Employee Updated', '\n');
+              console.table(updatedEmployeePrint);
+              startIQ();
+            }
+          })
+        }
+      })
     }
   });
 };

@@ -111,8 +111,6 @@ function choiceChecker(answers) {
                 choices: roles
               }).then(data => {
                 empParams.push(data.empRole)
-                console.log(empParams)
-
                 inquirer.prompt(
                   {
                     type: 'list',

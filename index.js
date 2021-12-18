@@ -81,7 +81,7 @@ function choiceChecker(answers) {
         const employees = rows.map(({ id, first_name, last_name }) => ({
           name: first_name + ' ' + last_name,
           value: id
-        }))
+        }));
 
         inquirer.prompt([{
           type: 'input',
@@ -120,8 +120,7 @@ function choiceChecker(answers) {
                   }).then(data => {
                     empParams.push(data.empManager)
                     const newEmployee = [{
-                      'First Name': empParams[0],
-                      'Last Name': empParams[1],
+                      'Name': empParams[0]+ ' ' +empParams[1],
                       'Role': roles[empParams[2] - 1].name,
                       'Manager': employees[empParams[3] - 1].name
                     }]

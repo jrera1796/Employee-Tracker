@@ -1,17 +1,16 @@
+## [![license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Employee-Tracker
 
-## Purpose
+## Description
+This application allows you to keep track of your employees, add departments, as well as adding role and salary information
+
 
 
 ## Built With
-* HTML
-* CSS
+* Mysql
 * JavaScript
 * NodeJS (MYSQL2, Inquirer, Console.Table)
-
-## Screenshot
-
-![Employee-Tracker Screenshot](/images/EmployeeTracker.png/?raw=true "Employee Tracker")
 
 ## Installation
 ### Clone this repository then once on the command line do the following commands
@@ -19,11 +18,13 @@
 - npm install inquirer console.table mysql2
 
 ## Usage
-Once all of your dependencies are installed seed your database with the schema
+In mysql create the database 'employees' in order for this to begin working correctly. Once that has been done then back on the command line do 'node index' to begin.
 
+## Screenshot
 
-## Website
-https://damp-cliffs-18932.herokuapp.com
+![Employee-Tracker Screenshot](/images/EmployeeTracker.png/?raw=true "Employee Tracker")
+
+## Video Walkthrough
 
 ## Contribution
 Made by Jose R.

@@ -25,6 +25,7 @@ In mysql create the database 'employees' in order for this to begin working corr
 ![Employee-Tracker Screenshot](/images/EmployeeTracker.png/?raw=true "Employee Tracker")
 
 ## Video Walkthrough
+https://watch.screencastify.com/v/v3tY6ZSCG22X2QxPyLze
 
 ## Contribution
 Made by Jose R.
